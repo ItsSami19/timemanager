@@ -2,10 +2,10 @@
 
 import React from "react";
 
-export default function SupervisorDashboardPage() {
+export default function HRDashboardPage() {
   return (
     <main>
-      <h1>Supervisor Dashboard</h1>
+      <h1>HR Dashboard</h1>
       <p></p>
     </main>
   );
