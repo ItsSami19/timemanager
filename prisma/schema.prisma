@@ -15,6 +15,7 @@ model User {
   role              Role
   flexTime          Int                 @default(0)
   vacationDays      Int                 @default(30)
+  flextimeAbsences  FlextimeAbsence[]
 
   // Relations:
   timesheets        Timesheet[]
@@ -42,6 +43,15 @@ model Team {
   // Member-Relation (n:1 von User zu Team):
   members      User[]   @relation("TeamMembers")
 }
+
+model FlextimeAbsence {
+   id        String   @id @default(uuid())
+   userId    String
+   date      DateTime
+   hours     Int      @default(8)
+   user      User     @relation(fields: [userId], references: [id])
+   createdAt DateTime @default(now())
+ }
 
 model Session {
   id           String   @id @default(cuid())
