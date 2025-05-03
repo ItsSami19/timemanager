@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
   TableContainer,
   Table,
   TableHead,
@@ -14,15 +12,10 @@ import {
   TableBody,
   Paper,
   IconButton,
-  AppBar,
-  Toolbar,
   Divider,
+  useTheme,
 } from '@mui/material';
 import {
-  Public as PublicIcon,
-  AccountCircle as AccountCircleIcon,
-  Notifications as NotificationsIcon,
-  Logout as LogoutIcon,
   ArrowBack as ArrowBackIcon, 
 } from '@mui/icons-material'; 
 
@@ -34,9 +27,7 @@ interface Props {
 
 export default function UserStatisticsOpenedPage({ params }: Props) {
   const userId = params.id;  // Die ID wird aus den Parametern übernommen
-  const [tabValue, setTabValue] = useState(4); // 4 = User Statistics
   const [employeeName] = useState('Max Mustermann'); // Beispielname des Mitarbeiters
-  const [employeeId] = useState('12345'); // Beispielhafte ID des Mitarbeiters
 
   const timeAccountData = [
     { month: 'January', hours: 160 },
@@ -57,43 +48,11 @@ export default function UserStatisticsOpenedPage({ params }: Props) {
     },
   ];
 
+  const theme = useTheme(); // Zugriff auf aktives Theme
+
   return (
-    <Box sx={{ p: 4, bgcolor: '#f7f7f7' }}>
-      {/* AppBar ohne Kasten, nur das Logo und die Icons */}
-      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black', boxShadow: 'none' }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* Logo: "TimeManager" in der Mitte */}
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333', flexGrow: 1, textAlign: 'center' }}>
-            TimeManager
-          </Typography>
-
-          {/* Icons rechts */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
-            <IconButton color="inherit" aria-label="Sprache/Welt">
-              <PublicIcon sx={{ color: 'black' }} />
-            </IconButton>
-            <IconButton color="inherit" aria-label="Benutzerprofil">
-              <AccountCircleIcon sx={{ color: 'black' }} />
-            </IconButton>
-            <IconButton color="inherit" aria-label="Benachrichtigungen">
-              <NotificationsIcon sx={{ color: 'black' }} />
-            </IconButton>
-            <IconButton color="inherit" aria-label="Abmelden">
-              <LogoutIcon sx={{ color: 'black' }} />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Tabs */}
-      <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ mb: 4 }}>
-        <Tab label="Times" />
-        <Tab label="Absence" />
-        <Tab label="Time Account" />
-        <Tab label="Vacation" />
-        <Tab label="User Statistics" />
-      </Tabs>
-
+    <Box sx={{ p: 4, bgcolor: theme.palette.background.default }}>
+      {/* Entferne das AppBar und das Wort "TimeManager" */}
       {/* Back Button als Symbol und rechts neben der Tabelle */}
       <IconButton
         color="primary"
@@ -104,19 +63,20 @@ export default function UserStatisticsOpenedPage({ params }: Props) {
         }}
         onClick={() => window.history.back()}
       >
-        <ArrowBackIcon sx={{ color: 'black' }} />
+        <ArrowBackIcon sx={{ color: theme.palette.text.primary }} />
       </IconButton>
 
       {/* Employee Info */}
-      <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: '#333' }}>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.text.primary }}>
         Employee: {employeeName}
       </Typography>
 
-      <Typography variant="h6" sx={{ mb: 4, fontWeight: 'normal', color: '#555' }}>
+      {/* Entferne die Employee ID Anzeige */}
+      {/* <Typography variant="h6" sx={{ mb: 4, fontWeight: 'normal', color: theme.palette.text.secondary }}>
         Employee ID: {employeeId} 
-      </Typography>
+      </Typography> */}
 
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
         User Statistics for ID: {userId}
       </Typography>
 
@@ -126,15 +86,15 @@ export default function UserStatisticsOpenedPage({ params }: Props) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
         {/* Flex Time Account Table */}
         <Box sx={{ flex: '1 1 calc(50% - 16px)' }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#333' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.text.primary }}>
             Flex Time Account
           </Typography>
-          <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
+          <TableContainer component={Paper} sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Month</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold', color: '#333' }}>Hours Worked</TableCell>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>Month</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>Hours Worked</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -151,46 +111,46 @@ export default function UserStatisticsOpenedPage({ params }: Props) {
 
         {/* Vacation Days Table */}
         <Box sx={{ flex: '1 1 calc(50% - 16px)' }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#333' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.text.primary }}>
             Vacation Days 2025
           </Typography>
-          <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
+          <TableContainer component={Paper} sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#333' }}>Field</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold', color: '#333' }}>Value</TableCell>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>Field</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>Value</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {vacationData.map((entry) => (
                   <React.Fragment key={entry.year}>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Year</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Year</strong></TableCell>
                       <TableCell align="right">{entry.year}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Requested</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Requested</strong></TableCell>
                       <TableCell align="right">{entry.requested}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Approved</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Approved</strong></TableCell>
                       <TableCell align="right">{entry.approved}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Taken</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Taken</strong></TableCell>
                       <TableCell align="right">{entry.taken}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Quota</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Quota</strong></TableCell>
                       <TableCell align="right">{entry.quota}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Vacation</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Vacation</strong></TableCell>
                       <TableCell align="right">{entry.vacation}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: '#555' }}><strong>Remaining</strong></TableCell>
+                      <TableCell sx={{ color: theme.palette.text.secondary }}><strong>Remaining</strong></TableCell>
                       <TableCell align="right">{entry.remaining}</TableCell>
                     </TableRow>
                   </React.Fragment>
@@ -203,3 +163,6 @@ export default function UserStatisticsOpenedPage({ params }: Props) {
     </Box>
   );
 }
+
+
+/*http://localhost:3000/dashboard/hr/[id]/hruserstat/hruserstatopen*/
