@@ -1,24 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Box,
-  Tabs,
-  Tab,
-  Paper,
-  TextField,
-  MenuItem,
-  Button,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@mui/material";
+import { Typography, Container, Box, Paper, TextField, MenuItem, Button, Table, TableHead, TableBody, TableRow, TableCell} from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 
@@ -34,23 +17,6 @@ export default function hrsicknessrequest() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Timemanager
-          </Typography>
-          <Typography variant="h6">Logo</Typography>
-        </Toolbar>
-        <Tabs value={0} sx={{ backgroundColor: "#90caf9" }}>
-          <Tab label="Times" />
-          <Tab label="Absence" />
-          <Tab label="Time Account" />
-          <Tab label="Vacation" />
-          <Tab label="User Statistics" />
-          <Tab label="User Administration" />
-        </Tabs>
-      </AppBar>
-
       <Container sx={{ mt: 4 }}>
         <Box display="flex" gap={4}>
           {/* Left Column */}
@@ -84,13 +50,17 @@ export default function hrsicknessrequest() {
                 label="From"
                 value={fromDate}
                 onChange={(newValue) => setFromDate(newValue)}
-                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
+                slotProps={{
+                  textField: { fullWidth: true, sx: { mb: 2 } },
+                }}
               />
               <DatePicker
                 label="Until"
                 value={untilDate}
                 onChange={(newValue) => setUntilDate(newValue)}
-                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
+                slotProps={{
+                  textField: { fullWidth: true, sx: { mb: 2 } },
+                }}
               />
               <Box display="flex" justifyContent="space-between">
                 <Button variant="outlined">Cancel</Button>
@@ -131,7 +101,11 @@ export default function hrsicknessrequest() {
                         >
                           Accept
                         </Button>
-                        <Button variant="contained" color="error" size="small">
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                        >
                           Deny
                         </Button>
                       </TableCell>
