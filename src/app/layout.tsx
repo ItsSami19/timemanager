@@ -1,26 +1,24 @@
 // src/app/layout.tsx
-import { AppProviders } from './theme/providers';
-import Navbar from '../components/navbar';
-import { NotificationProvider } from '../components/context/NotificationContext'; // Importiere den Provider
+import MaybeNavbar from "../components/MaybeNavbar";
+import { Providers } from "../components/Providers";
 
 export const metadata = {
-  title: 'STC Time Manager',
+  title: "TimeManager",
 };
 
-type RootLayoutProps = Readonly<{
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
-}>;
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}) {
   return (
     <html lang="en">
       <body>
-        <AppProviders>
-          <NotificationProvider> {/* Hier wird der NotificationProvider hinzugefügt */}
-            <Navbar />
-            <main style={{ padding: '1rem' }}>{children}</main>
-          </NotificationProvider>
-        </AppProviders>
+        {/* Providers ist eine Client Component */}
+        <Providers>
+          <MaybeNavbar />
+          <main style={{ padding: "1rem" }}>{children}</main>
+        </Providers>
       </body>
     </html>
   );

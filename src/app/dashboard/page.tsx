@@ -1,12 +1,27 @@
-"use client";
+// app/dashboard/page.tsx
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth"; // oder dein eigenes
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
-import React from "react";
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    // falls nicht eingeloggt → Login
+    redirect("/login");
+  }
 
-export default function SupervisorDashboardPage() {
-  return (
-    <main>
-      <h1>Supervisor Dashboard</h1>
-      <p></p>
-    </main>
-  );
+  const role = session.user.role; // z. B. "EMPLOYEE" | "SUPERVISOR" | "HR"
+
+  // je nach Rolle zum richtigen Sub‑Dashboard weiterleiten
+  switch (role) {
+    case "EMPLOYEE":
+      redirect("/dashboard/employee");
+    case "SUPERVISOR":
+      redirect("/dashboard/supervisor");
+    case "HR":
+      redirect("/dashboard/hr");
+    default:
+      // unvorhergesehene Rolle
+      redirect("/dashboard/employee");
+  }
 }
