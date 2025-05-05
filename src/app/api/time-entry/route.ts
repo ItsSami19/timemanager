@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         start: new Date(arrival),
         end: new Date(departure),
         break: breakMinutes ?? 0,
-        status: "DRAFT",
+        status: "SUBMITTED", // Default status
       },
     });
 

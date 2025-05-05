@@ -57,11 +57,19 @@ export default function LoginPage() {
           backgroundColor: theme.palette.background.paper, // Dynamische Hintergrundfarbe je nach Modus
         }}
       >
-        <Typography component="h1" variant="h5" sx={{ color: theme.palette.text.primary }}>
+        <Typography
+          component="h1"
+          variant="h5"
+          sx={{ color: theme.palette.text.primary }}
+        >
           Login
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ mt: 1, width: "100%" }}
+        >
           <TextField
             margin="normal"
             required
@@ -76,7 +84,7 @@ export default function LoginPage() {
             sx={{
               backgroundColor: theme.palette.background.default,
               borderRadius: 1,
-              '& .MuiInputBase-root': {
+              "& .MuiInputBase-root": {
                 color: theme.palette.text.primary,
               },
             }}
@@ -96,7 +104,7 @@ export default function LoginPage() {
             sx={{
               backgroundColor: theme.palette.background.default,
               borderRadius: 1,
-              '& .MuiInputBase-root': {
+              "& .MuiInputBase-root": {
                 color: theme.palette.text.primary,
               },
             }}
@@ -111,7 +119,7 @@ export default function LoginPage() {
               mb: 2,
               backgroundColor: theme.palette.primary.main,
               color: theme.palette.background.paper,
-              '&:hover': {
+              "&:hover": {
                 backgroundColor: theme.palette.primary.dark,
               },
             }}
@@ -120,7 +128,11 @@ export default function LoginPage() {
           </Button>
 
           <Box textAlign="center">
-            <Link href="/auth/forgot-password" variant="body2" sx={{ color: theme.palette.text.secondary }}>
+            <Link
+              href="/auth/forgot-password"
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary }}
+            >
               Passwort vergessen?
             </Link>
           </Box>
@@ -138,7 +150,10 @@ export default function LoginPage() {
             boxShadow: 2,
           }}
         >
-          <IconButton onClick={toggleColorMode} sx={{ color: theme.palette.text.primary }}>
+          <IconButton
+            onClick={toggleColorMode}
+            sx={{ color: theme.palette.text.primary }}
+          >
             {theme.palette.mode === "dark" ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
         </Box>

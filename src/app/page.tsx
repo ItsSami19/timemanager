@@ -10,7 +10,7 @@ export default async function RootPage() {
 
   if (!session) {
     // Kein Login → zur Login-Seite
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   // Je nach Rolle weiterleiten

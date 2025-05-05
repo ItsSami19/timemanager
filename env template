@@ -6,4 +6,6 @@
 
 # See the documentation for all the connection string options: https://pris.ly/d/connection-strings
 
-DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
+DATABASE_URL="postgresql://HRUSER:123@localhost:5432/timemanager"
+NEXTAUTH_SECRET="caRUK5qVAfPF9ef+KkQWHlV6ijQoV2ymtNiYnoI2l3U="
+NEXTAUTH_URL=http://localhost:3000
