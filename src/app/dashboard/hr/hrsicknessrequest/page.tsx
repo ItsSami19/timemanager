@@ -1,7 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { Typography, Container, Box, Paper, TextField, MenuItem, Button, Table, TableHead, TableBody, TableRow, TableCell} from "@mui/material";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Typography,
+  Container,
+  Box,
+  Paper,
+  TextField,
+  MenuItem,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 
@@ -9,11 +23,16 @@ export default function hrsicknessrequest() {
   const [absenceType, setAbsenceType] = useState("Sick Leave");
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [untilDate, setUntilDate] = useState<Date | null>(null);
+  const [sicknesses, setSicknesses] = useState<
+    { id: string; worker: string; from: string; to: string }[]
+  >([]);
 
-  const dummyRequests = [
-    { id: 1, worker: "Worker1", from: "19th April", to: "20th April" },
-    { id: 2, worker: "Worker2", from: "16th April", to: "18th April" },
-  ];
+  useEffect(() => {
+    axios
+      .get("/api/hr/sickness")
+      .then((res) => setSicknesses(res.data.sicknesses))
+      .catch((err) => console.error("Error loading sicknesses:", err));
+  }, []);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -50,17 +69,13 @@ export default function hrsicknessrequest() {
                 label="From"
                 value={fromDate}
                 onChange={(newValue) => setFromDate(newValue)}
-                slotProps={{
-                  textField: { fullWidth: true, sx: { mb: 2 } },
-                }}
+                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
               />
               <DatePicker
                 label="Until"
                 value={untilDate}
                 onChange={(newValue) => setUntilDate(newValue)}
-                slotProps={{
-                  textField: { fullWidth: true, sx: { mb: 2 } },
-                }}
+                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
               />
               <Box display="flex" justifyContent="space-between">
                 <Button variant="outlined">Cancel</Button>
@@ -86,31 +101,25 @@ export default function hrsicknessrequest() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dummyRequests.map((req) => (
-                    <TableRow key={req.id}>
-                      <TableCell>{req.worker}</TableCell>
+                  {sicknesses.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell>{entry.worker}</TableCell>
                       <TableCell>
-                        {req.from} - {req.to}
+                        {entry.from.slice(0, 10)} – {entry.to.slice(0, 10)}
                       </TableCell>
                       <TableCell align="right">
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          sx={{ mr: 1 }}
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                        >
-                          Deny
+                        {/* Placeholder for future actions */}
+                        <Button size="small" disabled>
+                          Edit
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
+                  {sicknesses.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={3}>No entries found.</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </Paper>
@@ -120,3 +129,4 @@ export default function hrsicknessrequest() {
     </LocalizationProvider>
   );
 }
+
