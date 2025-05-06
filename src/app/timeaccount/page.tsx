@@ -1,112 +1,121 @@
-// app/userstat/page.tsx (kein [id] nötig, wenn User aus Session kommt)
-import { auth } from "@/lib/auth"; // oder getServerSession
-import { prisma } from "@/lib/prisma";
-import { format } from "date-fns";
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import {
-  Container,
-  Typography,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Divider,
-} from "@mui/material";
+  Box, Typography, TableContainer, Table, TableHead,
+  TableRow, TableCell, TableBody, Paper, useTheme
+} from '@mui/material';
 
-export default async function UserStatisticsPage() {
-  const session = await auth();
-  const userId = session?.user?.id;
+interface VacationData {
+  PENDING: number;
+  APPROVED: number;
+  MAX: number;
+  REMAINING: number;
+}
 
-  if (!userId) {
-    return (
-      <Container>
-        <Typography variant="h6">Nicht eingeloggt</Typography>
-      </Container>
-    );
+interface TimeAccountEntry {
+  month: string;
+  hours: number;
+}
+
+export default function Page() {
+  const theme = useTheme();
+  const [vacationData, setVacationData] = useState<VacationData | null>(null);
+  const [timeAccountData, setTimeAccountData] = useState<TimeAccountEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/userstatistics'); // Passe diesen Pfad ggf. an
+        if (!res.ok) throw new Error('Not authorized or error fetching data');
+
+        const data = await res.json();
+
+        setVacationData(data.vacation);
+        const times: TimeAccountEntry[] = Object.entries(data.workHoursByMonth).map(
+          ([month, hours]) => ({ month, hours: hours as number })
+        );
+        setTimeAccountData(times);
+      } catch (err: any) {
+        console.error(err);
+        setError('Fehler beim Laden der Daten');
+      }
+    };
+
+    fetchData();
+  }, []);
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      timesheets: {
-        orderBy: { date: "asc" },
-      },
-      vacationRequests: {
-        orderBy: { startDate: "asc" },
-      },
-    },
-  });
-
-  if (!user) {
-    return (
-      <Container>
-        <Typography variant="h6">Benutzer nicht gefunden</Typography>
-      </Container>
-    );
+  if (!vacationData) {
+    return <Typography>Loading...</Typography>;
   }
-
-  const flexByMonth = user.timesheets.reduce((acc, ts) => {
-    const month = format(ts.date, "yyyy-MM");
-    const hours = (ts.end.getTime() - ts.start.getTime()) / 1000 / 3600;
-    acc[month] = (acc[month] || 0) + hours;
-    return acc;
-  }, {} as Record<string, number>);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Statistiken für {user.name}
-      </Typography>
+    <Box sx={{ p: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
+        {/* Flex Time Account Table */}
+        <Box sx={{ flex: '1 1 calc(50% - 16px)' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.text.primary }}>
+            Flex Time Account
+          </Typography>
+          <TableContainer component={Paper} sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Month</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Hours Worked</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {timeAccountData.map((entry) => (
+                  <TableRow key={entry.month}>
+                    <TableCell>{entry.month}</TableCell>
+                    <TableCell align="right">{entry.hours.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
 
-      <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-        <Typography variant="h5" gutterBottom>
-          Flex Time Account
-        </Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Monat</TableCell>
-              <TableCell>Stunden</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(flexByMonth).map(([month, hours]) => (
-              <TableRow key={month} hover>
-                <TableCell>{month}</TableCell>
-                <TableCell>{hours.toFixed(2)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
-
-      <Divider sx={{ mb: 4 }} />
-
-      <Paper sx={{ p: 3 }} elevation={3}>
-        <Typography variant="h5" gutterBottom>
-          Urlaubsanträge
-        </Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Start</TableCell>
-              <TableCell>Ende</TableCell>
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {user.vacationRequests.map((vr) => (
-              <TableRow key={vr.id} hover>
-                <TableCell>{format(vr.startDate, "yyyy-MM-dd")}</TableCell>
-                <TableCell>{format(vr.endDate, "yyyy-MM-dd")}</TableCell>
-                <TableCell>{vr.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
-    </Container>
+        {/* Vacation Days Table */}
+        <Box sx={{ flex: '1 1 calc(50% - 16px)' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.text.primary }}>
+            Vacation Days {new Date().getFullYear()}
+          </Typography>
+          <TableContainer component={Paper} sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Field</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Value</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Requested</TableCell>
+                  <TableCell align="right">{vacationData.PENDING}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Approved</TableCell>
+                  <TableCell align="right">{vacationData.APPROVED}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Vacation Days</TableCell>
+                  <TableCell align="right">{vacationData.MAX}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Remaining</TableCell>
+                  <TableCell align="right">{vacationData.REMAINING}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Box>
+    </Box>
   );
 }

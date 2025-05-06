@@ -91,7 +91,11 @@ const Navbar = () => {
             </IconButton>
             <NotificationButton />
             <IconButton sx={{ color: theme.palette.text.primary }}>
-              <AccountCircle />
+              <AccountCircle 
+                sx={{ color: theme.palette.text.primary }}
+                onClick={() => (window.location.href = "/employeestat")}
+              />
+              
             </IconButton>
             <IconButton
               sx={{ color: theme.palette.text.primary }}
