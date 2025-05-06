@@ -6,12 +6,11 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-    // const session = await getServerSession(authOptions);
-    // if (!session || !session.user?.id) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-    const userId = "4960d971-7010-4312-bff8-a802db529968";
-    // sobald das mit den sessions funktioniert, dann hier userId = session.user.id
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = session.user.id;
 
   const teams = await prisma.team.findMany({
     where: { supervisorId: userId },

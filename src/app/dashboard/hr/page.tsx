@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import axios from "axios";
 import {
   Box,
@@ -9,6 +11,9 @@ import {
   TextField,
   Typography,
   Paper,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -17,9 +22,11 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { de } from "date-fns/locale";
 import { useEffect } from "react";
 
+
 export default function TimeEntryDashboard() {
   // Set initial states with Date or null
   const [date, setDate] = useState<Date | null>(new Date());
+  const { data: session } = useSession();
   const [arrival, setArrival] = useState<Date | null>(
     new Date(new Date().setHours(8, 0, 0))
   );
@@ -92,115 +99,142 @@ export default function TimeEntryDashboard() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <Paper sx={{ p: 3, width: 400, boxShadow: 3 }}>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        {/* Sidebar */}
+        <Box
+          sx={{
+            width: 220,
+            backgroundColor: "default",
+            p: 2,
+            borderRight: "1px solid #ccc",
+          }}
+        >
           <Typography variant="h6" gutterBottom>
-            Enter Time
+            HR Panel
           </Typography>
+          <List>
+            <ListItem button component="a" href="/dashboard/hr/${session.user.id}/hruserstat">
+              <ListItemText primary="See Employee Stats" />
+            </ListItem>
+            <ListItem button component="a" href="/dashboard/hr/hrsicknessrequest">
+              <ListItemText primary="Sick Leaves" />
+            </ListItem>
+          </List>
+        </Box>
+        <Box sx={{ flexGrow: 1, p: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Paper sx={{ p: 3, width: 400, boxShadow: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Enter Time
+              </Typography>
 
-          <DatePicker
-            label="Date"
-            value={date}
-            onChange={(newDate: Date | null) => setDate(newDate)}
-            minDate={oneMonthAgo}
-            slotProps={{
-              textField: { fullWidth: true, sx: { mb: 2 } } as Partial<
-                React.ComponentProps<typeof TextField>
-              >,
-            }}
-          />
+              <DatePicker
+                label="Date"
+                value={date}
+                onChange={(newDate: Date | null) => setDate(newDate)}
+                minDate={oneMonthAgo}
+                slotProps={{
+                  textField: { fullWidth: true, sx: { mb: 2 } } as Partial<
+                    React.ComponentProps<typeof TextField>
+                  >,
+                }}
+              />
 
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <TimePicker
-              label="Arrival"
-              value={arrival}
-              onChange={(newTime: Date | null) => setArrival(newTime)}
-              slotProps={{
-                textField: { sx: { mr: 1 } } as Partial<
-                  React.ComponentProps<typeof TextField>
-                >,
-              }}
-            />
-            <TimePicker
-              label="Departure"
-              value={departure}
-              onChange={(newTime: Date | null) => setDeparture(newTime)}
-              slotProps={{
-                textField: { sx: { ml: 1 } } as Partial<
-                  React.ComponentProps<typeof TextField>
-                >,
-              }}
-            />
-          </Box>
-
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={break30}
-                  onChange={() => {
-                    setBreak30((prev) => !prev);
-                    setBreak45(false);
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TimePicker
+                  label="Arrival"
+                  value={arrival}
+                  onChange={(newTime: Date | null) => setArrival(newTime)}
+                  slotProps={{
+                    textField: { sx: { mr: 1 } } as Partial<
+                      React.ComponentProps<typeof TextField>
+                    >,
                   }}
                 />
-              }
-              label="Break 30 min"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={break45}
-                  onChange={() => {
-                    setBreak45((prev) => !prev);
-                    setBreak30(false);
+                <TimePicker
+                  label="Departure"
+                  value={departure}
+                  onChange={(newTime: Date | null) => setDeparture(newTime)}
+                  slotProps={{
+                    textField: { sx: { ml: 1 } } as Partial<
+                      React.ComponentProps<typeof TextField>
+                    >,
                   }}
                 />
-              }
-              label="Break 45 min"
-            />
-          </Box>
+              </Box>
 
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Button
-              variant="outlined"
-              onClick={handleCancel}
-              disabled={submitting}
-              sx={{ mr: 1 }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              Submit
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          Your Entries
-        </Typography>
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={break30}
+                      onChange={() => {
+                        setBreak30((prev) => !prev);
+                        setBreak45(false);
+                      }}
+                    />
+                  }
+                  label="Break 30 min"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={break45}
+                      onChange={() => {
+                        setBreak45((prev) => !prev);
+                        setBreak30(false);
+                      }}
+                    />
+                  }
+                  label="Break 45 min"
+                />
+              </Box>
 
-        {loadingEntries ? (
-          <Typography>Loading...</Typography>
-        ) : (
-          entries.map((entry) => (
-            <Paper key={entry.id} sx={{ p: 2, mb: 1 }}>
-              <Typography>
-                Date: {new Date(entry.date).toLocaleDateString()}
-              </Typography>
-              <Typography>
-                Time: {new Date(entry.start).toLocaleTimeString()} -{" "}
-                {new Date(entry.end).toLocaleTimeString()}
-              </Typography>
-              <Typography>Break: {entry.break} min</Typography>
-              <Typography>Status: {entry.status}</Typography>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  disabled={submitting}
+                  sx={{ mr: 1 }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                >
+                  Submit
+                </Button>
+              </Box>
             </Paper>
-          ))
-        )}
+          </Box>
+
+          {/* Entries section directly under the form */}
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Your Entries
+            </Typography>
+
+            {loadingEntries ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              entries.map((entry) => (
+                <Paper key={entry.id} sx={{ p: 2, mb: 1 }}>
+                  <Typography>
+                    Date: {new Date(entry.date).toLocaleDateString()}
+                  </Typography>
+                  <Typography>
+                    Time: {new Date(entry.start).toLocaleTimeString()} -{" "}
+                    {new Date(entry.end).toLocaleTimeString()}
+                  </Typography>
+                  <Typography>Break: {entry.break} min</Typography>
+                  <Typography>Status: {entry.status}</Typography>
+                </Paper>
+              ))
+            )}
+          </Box>
+        </Box>
       </Box>
     </LocalizationProvider>
   );
