@@ -92,13 +92,13 @@ const Navbar = () => {
 
             <NotificationButton />
 
-            {/* 👇 Hier ist der neue Link-Button zur EmployeeStat-Seite */}
-            <Link href="/dashboard/employee/employeestat">
-              <IconButton sx={{ color: theme.palette.text.primary }}>
-                <AccountCircle />
-              </IconButton>
-            </Link>
-
+            <IconButton sx={{ color: theme.palette.text.primary }}>
+              <AccountCircle 
+                sx={{ color: theme.palette.text.primary }}
+                onClick={() => (window.location.href = "/employeestat")}
+              />
+              
+            </IconButton>
             <IconButton
               sx={{ color: theme.palette.text.primary }}
               onClick={() => (window.location.href = "/login")}
