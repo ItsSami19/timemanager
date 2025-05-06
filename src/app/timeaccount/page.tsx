@@ -30,6 +30,7 @@ export default async function UserStatisticsPage() {
     where: { id: userId },
     select: {
       name: true,
+      flexTime: true,
       timesheets: {
         orderBy: { date: "asc" },
       },
