@@ -89,10 +89,16 @@ const Navbar = () => {
             <IconButton sx={{ color: theme.palette.text.primary }}>
               <Language />
             </IconButton>
+
             <NotificationButton />
-            <IconButton sx={{ color: theme.palette.text.primary }}>
-              <AccountCircle />
-            </IconButton>
+
+            {/* 👇 Hier ist der neue Link-Button zur EmployeeStat-Seite */}
+            <Link href="/dashboard/employee/employeestat">
+              <IconButton sx={{ color: theme.palette.text.primary }}>
+                <AccountCircle />
+              </IconButton>
+            </Link>
+
             <IconButton
               sx={{ color: theme.palette.text.primary }}
               onClick={() => (window.location.href = "/login")}
@@ -108,7 +114,7 @@ const Navbar = () => {
             display: "flex",
             gap: 2,
             backgroundColor: theme.palette.background.default,
-            justifyContent: "flex-start", // <- linksbündig
+            justifyContent: "flex-start",
             py: 1,
             px: 2,
           }}
