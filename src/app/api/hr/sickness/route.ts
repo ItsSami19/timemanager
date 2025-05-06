@@ -1,62 +1,33 @@
 // src/app/api/hr/sickness/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth"; // Importiere die auth() Funktion
 import prisma from "@/lib/prisma";
 
-// Temporär hartcodiert für Testzwecke (HR-Nutzer)
-const HR_USER_ID = "8550602d-20c0-4f1e-a27e-271db2b9dec2";
-
 export async function GET(req: NextRequest) {
-  // TODO: Sobald Session-Authentifizierung funktioniert, dynamisch auslesen:
-  // const session = await getServerSession(authOptions);
-  // if (!session || !session.user?.id) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
-  // const userId = session.user.id;
+  const session = await auth();
 
-  const userId = HR_USER_ID;
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true },
-  });
-
-  if (user?.role !== "HR") {
+  // Wenn keine gültige Session oder nicht als HR angemeldet
+  if (!session || session.user.role !== "HR") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const sicknesses = await prisma.sickness.findMany({
-    include: {
-      user: {
-        select: { name: true },
-      },
-    },
-    orderBy: { fromDate: "desc" },
+  const employees = await prisma.user.findMany({
+    select: { id: true, name: true, role: true },
   });
 
-  return NextResponse.json({
-    sicknesses: sicknesses.map((s) => ({
-      id: s.id,
-      worker: s.user.name,
-      from: s.fromDate.toISOString(),
-      to: s.toDate.toISOString(),
-    })),
-  });
+  return NextResponse.json(employees);
 }
 
-export async function POST(req: NextRequest) {
-  // TODO: Sobald Session-Authentifizierung funktioniert, dynamisch auslesen:
-  // const session = await getServerSession(authOptions);
-  // if (!session || !session.user?.id) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
-  // const userId = session.user.id;
 
-  const userId = HR_USER_ID;
+export async function POST(req: NextRequest) {
+  const session = await auth();
+
+  if (!session || !session.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const currentUser = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: session.user.id },
     select: { role: true },
   });
 
@@ -65,42 +36,20 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { type, from, until, targetUserId } = body;
+  const { from, until, targetUserId } = body;
 
-  if (!from || !until || !type || !targetUserId) {
+  if (!from || !until || !targetUserId) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  if (type === "SICKNESS") {
-    await prisma.sickness.create({
-      data: {
-        userId: targetUserId,
-        fromDate: new Date(from),
-        toDate: new Date(until),
-      },
-    });
-  } else if (type === "VACATION") {
-    await prisma.$transaction([
-      prisma.vacationRequest.create({
-        data: {
-          userId: targetUserId,
-          startDate: new Date(from),
-          endDate: new Date(until),
-          status: "APPROVED",
-        },
-      }),
-      prisma.user.update({
-        where: { id: targetUserId },
-        data: {
-          vacationDays: { decrement: 1 },
-        },
-      }),
-    ]);
-  } else {
-    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
-  }
+  await prisma.sickness.create({
+    data: {
+      userId: targetUserId,
+      fromDate: new Date(from),
+      toDate: new Date(until),
+    },
+  });
 
   return NextResponse.json({ success: true });
 }
-
 

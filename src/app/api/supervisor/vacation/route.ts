@@ -6,11 +6,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  // TODO: Sobald die Session-Authentifizierung funktioniert,
-  // `userId` dynamisch über `session.user.id` setzen:
-  // const session = await getServerSession(authOptions);
-  // const userId = session?.user?.id;
-  const userId = "4960d971-7010-4312-bff8-a802db529968"; // Temporär hartcodiert für Testzwecke
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
 
   
     const teams = await prisma.team.findMany({
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest) {
   
     const requests = teams.flatMap((team) =>
       team.members
-        .filter((member) => member.id !== userId) // <- Hier wird der Supervisor selbst ausgeschlossen
+        .filter((member) => member.id !== userId) // exclude supervisor from list
         .flatMap((member) =>
           member.vacationRequests.map((req) => ({
             id: req.id,

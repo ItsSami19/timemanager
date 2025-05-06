@@ -7,126 +7,117 @@ import {
   Container,
   Box,
   Paper,
-  TextField,
-  MenuItem,
   Button,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 
-export default function hrsicknessrequest() {
-  const [absenceType, setAbsenceType] = useState("Sick Leave");
+export default function HRSicknessRequest() {
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [untilDate, setUntilDate] = useState<Date | null>(null);
-  const [sicknesses, setSicknesses] = useState<
-    { id: string; worker: string; from: string; to: string }[]
-  >([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
-    axios
-      .get("/api/hr/sickness")
-      .then((res) => setSicknesses(res.data.sicknesses))
-      .catch((err) => console.error("Error loading sicknesses:", err));
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get("/api/hr/sickness");
+        setEmployees(res.data);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
   }, []);
+
+  const handleSubmit = async () => {
+    if (!fromDate || !untilDate || !selectedEmployee) {
+      console.error("Missing required fields");
+      return;
+    }
+
+    try {
+      await axios.post("/api/hr/sickness", {
+        from: fromDate?.toISOString(),
+        until: untilDate?.toISOString(),
+        targetUserId: selectedEmployee,
+      });
+      setSnackbarMessage("Sick leave successfully submitted!");
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error("Error submitting sickness:", error);
+      setSnackbarMessage("Failed to submit sick leave.");
+      setOpenSnackbar(true);
+    }
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container sx={{ mt: 4 }}>
-        <Box display="flex" gap={4}>
-          {/* Left Column */}
-          <Box flex={1}>
-            <Paper sx={{ p: 2, mb: 4 }}>
-              <Typography variant="h6">Select a Date</Typography>
-              <DatePicker
-                label="Date"
-                value={fromDate}
-                onChange={(newValue) => setFromDate(newValue)}
-                slotProps={{ textField: { fullWidth: true, sx: { mt: 2 } } }}
-              />
-            </Paper>
-
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                New Absence
-              </Typography>
-              <TextField
-                select
-                label="Kind of Absence"
-                value={absenceType}
-                onChange={(e) => setAbsenceType(e.target.value)}
-                fullWidth
-                sx={{ mb: 2 }}
+        <Box maxWidth="sm">
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Enter Sick Leave
+            </Typography>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Employee</InputLabel>
+              <Select
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
+                label="Employee"
               >
-                <MenuItem value="Sick Leave">Sick Leave</MenuItem>
-                <MenuItem value="Vacation">Vacation</MenuItem>
-              </TextField>
-              <DatePicker
-                label="From"
-                value={fromDate}
-                onChange={(newValue) => setFromDate(newValue)}
-                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
-              />
-              <DatePicker
-                label="Until"
-                value={untilDate}
-                onChange={(newValue) => setUntilDate(newValue)}
-                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
-              />
-              <Box display="flex" justifyContent="space-between">
-                <Button variant="outlined">Cancel</Button>
-                <Button variant="contained" color="primary">
-                  Send
-                </Button>
-              </Box>
-            </Paper>
-          </Box>
-
-          {/* Right Column */}
-          <Box flex={1}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Sick Leave Requests
-              </Typography>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Worker</TableCell>
-                    <TableCell>From/To</TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {sicknesses.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>{entry.worker}</TableCell>
-                      <TableCell>
-                        {entry.from.slice(0, 10)} – {entry.to.slice(0, 10)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {/* Placeholder for future actions */}
-                        <Button size="small" disabled>
-                          Edit
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {sicknesses.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={3}>No entries found.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </Paper>
-          </Box>
+                {employees.length > 0 ? (
+                  employees.map((employee) => (
+                    <MenuItem key={employee.id} value={employee.id}>
+                      {employee.name} ({employee.role})
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="">No Employees</MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <DatePicker
+              label="From"
+              value={fromDate}
+              onChange={(newValue) => setFromDate(newValue)}
+              slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
+            />
+            <DatePicker
+              label="Until"
+              value={untilDate}
+              onChange={(newValue) => setUntilDate(newValue)}
+              slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
+            />
+            <Box display="flex" justifyContent="space-between">
+              <Button variant="outlined">Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handleSubmit}>
+                Send
+              </Button>
+            </Box>
+          </Paper>
         </Box>
       </Container>
+
+      {/* confirmation pop-up */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </LocalizationProvider>
   );
 }
-
