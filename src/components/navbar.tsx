@@ -89,7 +89,9 @@ const Navbar = () => {
             <IconButton sx={{ color: theme.palette.text.primary }}>
               <Language />
             </IconButton>
+
             <NotificationButton />
+
             <IconButton sx={{ color: theme.palette.text.primary }}>
               <AccountCircle 
                 sx={{ color: theme.palette.text.primary }}
@@ -112,7 +114,7 @@ const Navbar = () => {
             display: "flex",
             gap: 2,
             backgroundColor: theme.palette.background.default,
-            justifyContent: "flex-start", // <- linksbündig
+            justifyContent: "flex-start",
             py: 1,
             px: 2,
           }}
