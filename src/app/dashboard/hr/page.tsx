@@ -119,6 +119,9 @@ export default function TimeEntryDashboard() {
             <ListItem component="a" href="/dashboard/hr/hrsicknessrequest">
               <ListItemText primary="Sick Leaves" />
             </ListItem>
+            <ListItem component="a" href="/hradminview">
+              <ListItemText primary="Admin View" />
+            </ListItem>
           </List>
         </Box>
         <Box sx={{ flexGrow: 1, p: 4 }}>
