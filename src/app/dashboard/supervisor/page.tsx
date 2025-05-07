@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Box,
@@ -96,7 +96,7 @@ export default function TimeEntryDashboard() {
         <Box
           sx={{
             width: 220,
-            backgroundColor: "default",
+            backgroundColor: (theme) => theme.palette.background.paper,
             p: 2,
             borderRight: "1px solid #ccc",
           }}
@@ -105,12 +105,11 @@ export default function TimeEntryDashboard() {
             Supervisor Panel
           </Typography>
           <List>
-            <ListItem
-              component="a"
-              href="/dashboard/supervisor/team-stats"
-              style={{ textDecoration: "none" }}
-            >
+            <ListItem component="a" href="/dashboard/supervisor/team-stats">
               <ListItemText primary="See Team Stats" />
+            </ListItem>
+            <ListItem component="a" href="/dashboard/supervisor/timerequest">
+              <ListItemText primary="Time Requests" />
             </ListItem>
             <ListItem
               component="a"
@@ -132,35 +131,23 @@ export default function TimeEntryDashboard() {
               <DatePicker
                 label="Date"
                 value={date}
-                onChange={(newDate: Date | null) => setDate(newDate)}
+                onChange={setDate}
                 minDate={oneMonthAgo}
-                slotProps={{
-                  textField: { fullWidth: true, sx: { mb: 2 } } as Partial<
-                    React.ComponentProps<typeof TextField>
-                  >,
-                }}
+                slotProps={{ textField: { fullWidth: true, sx: { mb: 2 } } }}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <TimePicker
                   label="Arrival"
                   value={arrival}
-                  onChange={(newTime: Date | null) => setArrival(newTime)}
-                  slotProps={{
-                    textField: { sx: { mr: 1 } } as Partial<
-                      React.ComponentProps<typeof TextField>
-                    >,
-                  }}
+                  onChange={setArrival}
+                  slotProps={{ textField: { sx: { mr: 1 } } }}
                 />
                 <TimePicker
                   label="Departure"
                   value={departure}
-                  onChange={(newTime: Date | null) => setDeparture(newTime)}
-                  slotProps={{
-                    textField: { sx: { ml: 1 } } as Partial<
-                      React.ComponentProps<typeof TextField>
-                    >,
-                  }}
+                  onChange={setDeparture}
+                  slotProps={{ textField: { sx: { ml: 1 } } }}
                 />
               </Box>
 
@@ -170,7 +157,7 @@ export default function TimeEntryDashboard() {
                     <Checkbox
                       checked={break30}
                       onChange={() => {
-                        setBreak30((prev) => !prev);
+                        setBreak30(!break30);
                         setBreak45(false);
                       }}
                     />
@@ -182,7 +169,7 @@ export default function TimeEntryDashboard() {
                     <Checkbox
                       checked={break45}
                       onChange={() => {
-                        setBreak45((prev) => !prev);
+                        setBreak45(!break45);
                         setBreak30(false);
                       }}
                     />
@@ -211,7 +198,7 @@ export default function TimeEntryDashboard() {
             </Paper>
           </Box>
 
-          {/* Einträge */}
+          {/* Entries */}
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6" gutterBottom>
               Your Entries
