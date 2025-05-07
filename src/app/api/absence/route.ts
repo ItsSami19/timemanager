@@ -51,14 +51,14 @@ export async function GET(request: NextRequest) {
       type: "SICKNESS" as const,
       startDate: s.fromDate.toISOString(),
       endDate: s.toDate.toISOString(),
-      status: "APPROVED",
+      status: "SUBMITTED",
     })),
     ...flextimes.map((f) => ({
       id: f.id,
       type: "FLEXTIME" as const,
       startDate: f.date.toISOString(),
       endDate: f.date.toISOString(),
-      status: "APPROVED",
+      status: "SUBMITTED",
       hours: f.hours,
     })),
   ];
