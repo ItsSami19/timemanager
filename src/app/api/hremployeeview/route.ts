@@ -12,12 +12,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const idParam = searchParams.get("id");
 
-    const isHR = session.user.role === "HR"; // optional: weitere HR-Prüfung möglich
-    const userIdToQuery = isHR && idParam ? idParam : session.user.id;
-
-    if (idParam && !isHR) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const userIdToQuery = idParam ? idParam : session.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userIdToQuery },

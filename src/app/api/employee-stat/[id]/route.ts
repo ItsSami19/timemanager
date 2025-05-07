@@ -45,7 +45,6 @@ export async function GET(
       role: user.role,
       team: user.team?.name || "Kein Team",
       supervisor: user.team?.supervisor?.name || "Kein Vorgesetzter",
-      createdAt: user.createdAt,
       lastActive: new Date(), // Platzhalter → hier könntest du Logik einbauen
       projectsCompleted: 0, // Platzhalter → wenn du sowas berechnen willst
     };
