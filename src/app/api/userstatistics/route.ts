@@ -1,8 +1,6 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { error } from 'console';
-import { auth } from '@/lib/auth'
-import { getServerSession } from 'next-auth';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 /* example output
 {
@@ -23,7 +21,7 @@ export async function GET() {
   try {
     const session = await auth();
     if (!session || !session.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     // get user and maximum vacation days of user
     const user = await prisma.user.findUnique({
@@ -32,7 +30,7 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const currentUserID = user.id;
@@ -43,7 +41,7 @@ export async function GET() {
     const yearEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59); // 2025-12-31 23:59:59
 
     // get vacation days of current year from vacationRequest table
-    const vacationRequests = await prisma.vacationRequest.findMany({
+    const vacationRequests = (await prisma.vacationRequest.findMany({
       where: {
         userId: currentUserID,
         startDate: {
@@ -52,7 +50,7 @@ export async function GET() {
         },
       },
       select: { status: true, startDate: true, endDate: true },
-    }) as { status: 'PENDING' | 'APPROVED'; startDate: Date; endDate: Date }[];
+    })) as { status: "PENDING" | "APPROVED"; startDate: Date; endDate: Date }[];
     // get working times from timesheet table
     const timesheets = await prisma.timesheet.findMany({
       where: {
@@ -74,9 +72,11 @@ export async function GET() {
         const start = new Date(req.startDate);
         const end = new Date(req.endDate);
 
-        const vacationDays =  Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const vacationDays =
+          Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) +
+          1;
 
-        if (req.status === 'PENDING' || req.status === 'APPROVED') {
+        if (req.status === "PENDING" || req.status === "APPROVED") {
           acc[req.status] += vacationDays;
         }
 
@@ -91,9 +91,11 @@ export async function GET() {
     // calculate remaining vacation days
     let REMAINING = 0;
     if (user != null) {
-       REMAINING = Math.max(user.vacationDays - vacationSummary.APPROVED, 0);
-    } else { throw new Error('User not found'); }  
-      
+      REMAINING = Math.max(user.vacationDays - vacationSummary.APPROVED, 0);
+    } else {
+      throw new Error("User not found");
+    }
+
     // calculate working time per month
     const workHoursByMonth: Record<string, number> = {};
     for (const entry of timesheets) {
@@ -103,7 +105,9 @@ export async function GET() {
       const hours = durationMs / (1000 * 60 * 60); // ms -> h
 
       const date = new Date(entry.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // z. B. "2025-03"
+      const monthKey = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`; // z. B. "2025-03"
 
       if (!workHoursByMonth[monthKey]) {
         workHoursByMonth[monthKey] = 0;
@@ -122,11 +126,10 @@ export async function GET() {
       workHoursByMonth,
     };
     return NextResponse.json(result);
-    }   
-    catch (error) {
-    console.error('Error fetching vacation summary:', error);
+  } catch (error) {
+    console.error("Error fetching vacation summary:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch vacation summary' },
+      { error: "Failed to fetch vacation summary" },
       { status: 500 }
     );
   }

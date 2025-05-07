@@ -107,7 +107,7 @@ export default function TimeEntryDashboard() {
           <List>
             <ListItem
               component="a"
-              href="/supervisor/team-stats"
+              href="/dashboard/supervisor/team-stats"
               style={{ textDecoration: "none" }}
             >
               <ListItemText primary="See Team Stats" />
