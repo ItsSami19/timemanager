@@ -20,9 +20,7 @@ import { de } from "date-fns/locale";
 
 export default function NewAbsencePage() {
   const router = useRouter();
-  const [type, setType] = useState<"" | "VACATION" | "SICKNESS" | "FLEXTIME">(
-    ""
-  );
+  const [type, setType] = useState<"" | "VACATION" | "FLEXTIME">("");
   const [from, setFrom] = useState<Date | null>(null);
   const [until, setUntil] = useState<Date | null>(null);
 
@@ -74,9 +72,8 @@ export default function NewAbsencePage() {
               onChange={(e) => setType(e.target.value as any)}
               label="Kind of Absence"
             >
-              <MenuItem value="">Wählen…</MenuItem>
-              <MenuItem value="VACATION">Urlaub</MenuItem>
-              <MenuItem value="SICKNESS">Krankheit</MenuItem>
+              <MenuItem value="">Choose…</MenuItem>
+              <MenuItem value="VACATION">Vacation</MenuItem>
               <MenuItem value="FLEXTIME">FlexTime (8 h)</MenuItem>
             </Select>
           </FormControl>

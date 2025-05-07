@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
 import axios from "axios";
 import {
   Box,
@@ -22,11 +20,9 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { de } from "date-fns/locale";
 import { useEffect } from "react";
 
-
 export default function TimeEntryDashboard() {
   // Set initial states with Date or null
   const [date, setDate] = useState<Date | null>(new Date());
-  const { data: session } = useSession();
   const [arrival, setArrival] = useState<Date | null>(
     new Date(new Date().setHours(8, 0, 0))
   );
@@ -113,10 +109,14 @@ export default function TimeEntryDashboard() {
             HR Panel
           </Typography>
           <List>
-            <ListItem button component="a" href="/dashboard/hr/${session.user.id}/hruserstat">
+            <ListItem
+              component="a"
+              href="/dashboard/hr/hrstat"
+              sx={{ textDecoration: "none" }}
+            >
               <ListItemText primary="See Employee Stats" />
             </ListItem>
-            <ListItem button component="a" href="/dashboard/hr/hrsicknessrequest">
+            <ListItem component="a" href="/dashboard/hr/hrsicknessrequest">
               <ListItemText primary="Sick Leaves" />
             </ListItem>
           </List>

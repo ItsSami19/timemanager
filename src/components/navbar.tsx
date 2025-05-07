@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import {
   AccountCircle,
-  Language,
   Logout,
   Brightness7,
   Brightness4,
@@ -86,18 +85,15 @@ const Navbar = () => {
 
           {/* Right: Icons */}
           <Box sx={{ display: "flex", gap: 1 }}>
-            <IconButton sx={{ color: theme.palette.text.primary }}>
-              <Language />
-            </IconButton>
-
             <NotificationButton />
 
             <IconButton sx={{ color: theme.palette.text.primary }}>
-              <AccountCircle 
+              <AccountCircle
                 sx={{ color: theme.palette.text.primary }}
-                onClick={() => (window.location.href = "/employeestat")}
+                onClick={() =>
+                  (window.location.href = "/dashboard/employee/employeestat")
+                }
               />
-              
             </IconButton>
             <IconButton
               sx={{ color: theme.palette.text.primary }}

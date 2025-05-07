@@ -12,7 +12,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -106,10 +105,17 @@ export default function TimeEntryDashboard() {
             Supervisor Panel
           </Typography>
           <List>
-            <ListItem button component="a" href="/supervisor/team-stats">
+            <ListItem
+              component="a"
+              href="/supervisor/team-stats"
+              style={{ textDecoration: "none" }}
+            >
               <ListItemText primary="See Team Stats" />
             </ListItem>
-            <ListItem button component="a" href="/dashboard/supervisor/supervisorviewvacationrequest">
+            <ListItem
+              component="a"
+              href="/dashboard/supervisor/supervisorviewvacationrequest"
+            >
               <ListItemText primary="Vacation Requests" />
             </ListItem>
           </List>
@@ -234,4 +240,3 @@ export default function TimeEntryDashboard() {
     </LocalizationProvider>
   );
 }
-

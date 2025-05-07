@@ -1,12 +1,10 @@
 // frontend mit axios
 
-
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Box,
-  Grid,
   Typography,
   Paper,
   Table,
@@ -18,6 +16,7 @@ import {
   Button,
 } from "@mui/material";
 
+import Grid from "@mui/material/GridLegacy"; // Grid version 2
 export default function VacationPage() {
   const [vacationRequests, setVacationRequests] = useState<any[]>([]);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
@@ -25,10 +24,14 @@ export default function VacationPage() {
   useEffect(() => {
     const fetchVacationData = async () => {
       try {
-        const { data: vacationData } = await axios.get("/api/supervisor/vacation");
+        const { data: vacationData } = await axios.get(
+          "/api/supervisor/vacation"
+        );
         setVacationRequests(vacationData.requests);
 
-        const { data: memberData } = await axios.get("/api/supervisor/team-members");
+        const { data: memberData } = await axios.get(
+          "/api/supervisor/team-members"
+        );
         setTeamMembers(memberData.members);
       } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
@@ -43,10 +46,15 @@ export default function VacationPage() {
     let approved = 0;
     let taken = 0;
 
-    const memberRequests = vacationRequests.filter((req) => req.workerId === memberId);
+    const memberRequests = vacationRequests.filter(
+      (req) => req.workerId === memberId
+    );
 
     memberRequests.forEach((req) => {
-      const duration = (new Date(req.to).getTime() - new Date(req.from).getTime()) / (1000 * 3600 * 24) + 1;
+      const duration =
+        (new Date(req.to).getTime() - new Date(req.from).getTime()) /
+          (1000 * 3600 * 24) +
+        1;
 
       if (req.status === "PENDING") {
         requested += duration;
@@ -62,11 +70,15 @@ export default function VacationPage() {
       approved,
       taken,
       available: 30 - approved,
-      quota: 30
+      quota: 30,
     };
   };
 
-  const updateRequestStatus = async (id: string, status: string, rejectionReason?: string) => {
+  const updateRequestStatus = async (
+    id: string,
+    status: string,
+    rejectionReason?: string
+  ) => {
     try {
       const response = await axios.put(`/api/supervisor/vacation/${id}`, {
         status,
@@ -95,9 +107,15 @@ export default function VacationPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><b>Worker</b></TableCell>
-                  <TableCell><b>From/To</b></TableCell>
-                  <TableCell align="right"><b>Status</b></TableCell>
+                  <TableCell>
+                    <b>Worker</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>From/To</b>
+                  </TableCell>
+                  <TableCell align="right">
+                    <b>Status</b>
+                  </TableCell>
                   <TableCell align="right"></TableCell>
                 </TableRow>
               </TableHead>
@@ -132,7 +150,9 @@ export default function VacationPage() {
                               color="success"
                               size="small"
                               sx={{ mr: 1 }}
-                              onClick={() => updateRequestStatus(req.id, "APPROVED")}
+                              onClick={() =>
+                                updateRequestStatus(req.id, "APPROVED")
+                              }
                             >
                               Accept
                             </Button>
@@ -141,9 +161,15 @@ export default function VacationPage() {
                               color="error"
                               size="small"
                               onClick={() => {
-                                const reason = prompt("Please give a reason for rejection:");
+                                const reason = prompt(
+                                  "Please give a reason for rejection:"
+                                );
                                 if (reason !== null) {
-                                  updateRequestStatus(req.id, "REJECTED", reason);
+                                  updateRequestStatus(
+                                    req.id,
+                                    "REJECTED",
+                                    reason
+                                  );
                                 }
                               }}
                             >
@@ -168,12 +194,24 @@ export default function VacationPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><b>Team Member</b></TableCell>
-                  <TableCell><b>Available</b></TableCell>
-                  <TableCell><b>Requested</b></TableCell>
-                  <TableCell><b>Approved</b></TableCell>
-                  <TableCell><b>Taken</b></TableCell>
-                  <TableCell><b>Quota</b></TableCell>
+                  <TableCell>
+                    <b>Team Member</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Available</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Requested</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Approved</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Taken</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Quota</b>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
