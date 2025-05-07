@@ -2,25 +2,17 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { action, userId } = await req.json();
+  const { id, role } = await req.json(); // Changed from action/userId to id/role
 
   try {
-    if (action === "PROMOTE") {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { role: "SUPERVISOR" },
-      });
-    } else if (action === "DEMOTE") {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { role: "EMPLOYEE" },
-      });
-    } else if (action === "DELETE") {
-      await prisma.user.delete({ where: { id: userId } });
-    }
+    // Update role directly
+    await prisma.user.update({
+      where: { id },
+      data: { role },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Action failed" }, { status: 500 });
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }
