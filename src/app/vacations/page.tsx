@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Paper,
@@ -16,6 +17,21 @@ import {
 
  export default function VacationPage() {
   const theme = useTheme();
+
+  const [vacationData, setVacationData] = useState([]);
+
+  useEffect(() => {
+    // Fetch vacation data from API
+    axios
+      .get("/api/vacation")
+      .then((response) => {
+        setVacationData(response.data);  // Set the fetched data
+      })
+      .catch((error) => {
+        console.error("Error fetching vacation data:", error);
+      });
+  }, []);
+
 
   
     return (
