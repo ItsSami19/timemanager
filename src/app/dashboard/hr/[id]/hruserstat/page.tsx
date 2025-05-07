@@ -1,110 +1,164 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  TextField,
   TableContainer,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  Button,
   Paper,
-  useTheme
-} from '@mui/material';
+  useTheme,
+} from "@mui/material";
+import { useParams } from "next/navigation";
 
-export default function UserStatisticsPage() {
-  // Beispielhafte Benutzer mit unterschiedlichen Rollen (HR, Supervisor, Employee)
-  const users = [
-    { id: 1, name: 'Max Mustermann', email: 'max.mustermann@example.com', role: 'Employee' },
-    { id: 2, name: 'Erika Mustermann', email: 'erika.mustermann@example.com', role: 'Employee' },
-    { id: 3, name: 'John Doe', email: 'john.doe@example.com', role: 'Supervisor' },
-    { id: 4, name: 'Jane Smith', email: 'jane.smith@example.com', role: 'Employee' },
-    { id: 5, name: 'Alice Johnson', email: 'alice.johnson@example.com', role: 'Supervisor' }, // Supervisor
-  ];
+interface VacationData {
+  PENDING: number;
+  APPROVED: number;
+  MAX: number;
+  REMAINING: number;
+}
 
-  const [search, setSearch] = useState('');
+interface TimeAccountEntry {
+  month: string;
+  hours: number;
+}
+
+export default function Page() {
+  const theme = useTheme();
+  const [vacationData, setVacationData] = useState<VacationData | null>(null);
+  const [timeAccountData, setTimeAccountData] = useState<TimeAccountEntry[]>(
+    []
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const params = useParams();
+  const userId = params.id as string;
 
   useEffect(() => {
-    // Placeholder for fetching user data
-    // You can make an Axios request here as per your original code
-  }, []);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/hremployeeview?id=${userId}`);
+        if (!res.ok) throw new Error("Not authorized or error fetching data");
 
-  // Filtered users based on search input
-  const filteredUsers = users.filter((user) =>
-    (user.name?.toLowerCase().includes(search.toLowerCase()) ?? false) || (user.email?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
+        const data = await res.json();
 
-  // Get theme for dark/light mode
-  const theme = useTheme();
+        setVacationData(data.vacation);
+        const times: TimeAccountEntry[] = Object.entries(
+          data.workHoursByMonth
+        ).map(([month, hours]) => ({ month, hours: hours as number }));
+        setTimeAccountData(times);
+      } catch (err: any) {
+        console.error(err);
+        setError("Fehler beim Laden der Daten");
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  if (error) return <Typography color="error">{error}</Typography>;
+  if (!vacationData) return <Typography>Loading...</Typography>;
 
   return (
-    <Box sx={{ p: 4, bgcolor: theme.palette.background.default }}>
-      {/* Heading */}
-      <Typography variant="h4" gutterBottom sx={{ color: theme.palette.text.primary }}>
-        User Statistics
-      </Typography>
-
-      {/* Search Field */}
-      <TextField
-        fullWidth
-        placeholder="🔍 E-mail / Name"
-        variant="outlined"
+    <Box sx={{ p: 4 }}>
+      <Box
         sx={{
-          mb: 3,
-          input: {
-            color: theme.palette.text.primary,  // Ensures input text color matches theme
-          },
-          fieldset: {
-            borderColor: theme.palette.text.primary, // Ensures border color is visible in dark mode
-          }
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 4,
         }}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      >
+        {/* Flex Time Account Table */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <Typography
+            variant="h6"
+            sx={{
+              mb: 2,
+              fontWeight: "bold",
+              color: theme.palette.text.primary,
+            }}
+          >
+            Flex Time Account
+          </Typography>
+          <TableContainer
+            component={Paper}
+            sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: "bold" }}>Month</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                    Hours Worked
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {timeAccountData.map((entry) => (
+                  <TableRow key={entry.month}>
+                    <TableCell>{entry.month}</TableCell>
+                    <TableCell align="right">
+                      {entry.hours.toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ bgcolor: theme.palette.background.paper }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}><strong>ID</strong></TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}><strong>User</strong></TableCell>
-              <TableCell sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}><strong>Role</strong></TableCell>
-              <TableCell align="right" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}><strong>See Statistics</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredUsers.filter(user => user.role !== 'HR').map((user) => ( // Filter out HR role
-              <TableRow key={user.id}>
-                <TableCell sx={{ color: theme.palette.text.primary }}>{user.id}</TableCell>
-                <TableCell sx={{ color: theme.palette.text.primary }}>{user.name}</TableCell>
-                <TableCell sx={{ color: theme.palette.text.primary }}>{user.role}</TableCell>
-                <TableCell align="right">
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={() => window.location.href = `/user/${user.id}`} // Changed the URL to reflect the user page
-                  >
-                    Open Statistics
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {filteredUsers.filter(user => user.role !== 'HR').length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ color: theme.palette.text.secondary }}>
-                  No users found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        {/* Vacation Days Table */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <Typography
+            variant="h6"
+            sx={{
+              mb: 2,
+              fontWeight: "bold",
+              color: theme.palette.text.primary,
+            }}
+          >
+            Vacation Days {new Date().getFullYear()}
+          </Typography>
+          <TableContainer
+            component={Paper}
+            sx={{ boxShadow: 3, bgcolor: theme.palette.background.paper }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
+                  <TableCell sx={{ fontWeight: "bold" }}>Field</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                    Value
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Requested</TableCell>
+                  <TableCell align="right">{vacationData.PENDING}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Approved</TableCell>
+                  <TableCell align="right">{vacationData.APPROVED}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Vacation Days</TableCell>
+                  <TableCell align="right">{vacationData.MAX}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Remaining</TableCell>
+                  <TableCell align="right">{vacationData.REMAINING}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Box>
     </Box>
   );
 }
-
-/*http://localhost:3000/dashboard/hr/[id]/hruserstat*/

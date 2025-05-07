@@ -12,10 +12,10 @@ import {
   Container,
   CssBaseline,
   useTheme,
-  IconButton, // Importiere IconButton
+  IconButton,
 } from "@mui/material";
-import { Brightness7, Brightness4 } from "@mui/icons-material"; // Importiere die Icons für Dark/Light Mode
-import { useColorMode } from "../../theme/providers"; // Den Farbmodus-Hook importieren
+import { Brightness7, Brightness4 } from "@mui/icons-material";
+import { useColorMode } from "../../theme/providers";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,12 +24,12 @@ export default function LoginPage() {
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") ?? "/";
 
-  // Zugriff auf das Theme und den Farbmodus-Hook
   const theme = useTheme();
   const { toggleColorMode } = useColorMode();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(""); // Reset error
     const res = await signIn("credentials", {
       redirect: false,
       email,
@@ -37,10 +37,19 @@ export default function LoginPage() {
       callbackUrl,
     });
 
-    if (!res?.error) {
+    if (res?.error) {
+      setErrorMessage("Invalid email or password.");
+    } else {
       router.push(callbackUrl);
     }
   };
+
+  const handleForgotPassword = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert("Please send an email to hr@stc.com");
+  };
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <Container component="main" maxWidth="xs">
@@ -54,7 +63,7 @@ export default function LoginPage() {
           p: 3,
           boxShadow: 3,
           borderRadius: 2,
-          backgroundColor: theme.palette.background.paper, // Dynamische Hintergrundfarbe je nach Modus
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         <Typography
@@ -75,7 +84,7 @@ export default function LoginPage() {
             required
             fullWidth
             id="email"
-            label="E-Mail Adresse"
+            label="Email Address"
             name="email"
             autoComplete="email"
             autoFocus
@@ -95,7 +104,7 @@ export default function LoginPage() {
             required
             fullWidth
             name="password"
-            label="Passwort"
+            label="Password"
             type="password"
             id="password"
             autoComplete="current-password"
@@ -109,6 +118,11 @@ export default function LoginPage() {
               },
             }}
           />
+          {errorMessage && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {errorMessage}
+            </Typography>
+          )}
 
           <Button
             type="submit"
@@ -124,21 +138,21 @@ export default function LoginPage() {
               },
             }}
           >
-            Einloggen
+            Sign In
           </Button>
 
           <Box textAlign="center">
             <Link
-              href="/auth/forgot-password"
+              href="#"
               variant="body2"
-              sx={{ color: theme.palette.text.secondary }}
+              onClick={handleForgotPassword}
+              sx={{ color: theme.palette.text.secondary, cursor: "pointer" }}
             >
-              Passwort vergessen?
+              Forgot password?
             </Link>
           </Box>
         </Box>
 
-        {/* Dark/Light Mode Toggle Button */}
         <Box
           sx={{
             position: "absolute",
