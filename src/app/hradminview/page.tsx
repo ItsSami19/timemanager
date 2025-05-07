@@ -16,6 +16,8 @@ type User = {
   role: string;
 };
 
+const roleHierarchy = ['EMPLOYEE', 'SUPERVISOR', 'HR'];
+
 export default function HRAdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [open, setOpen] = useState(false);
@@ -36,8 +38,20 @@ export default function HRAdminPage() {
     fetchUsers();
   };
 
-  const handleUpdateRole = async (id: string, role: string) => {
-    await axios.post("/api/hradmin/update", { id, role });
+  const updateRole = (currentRole: string, action: 'promote' | 'demote') => {
+    const currentIndex = roleHierarchy.indexOf(currentRole);
+    if (action === 'promote') {
+      return roleHierarchy[Math.min(currentIndex + 1, roleHierarchy.length - 1)];
+    }
+    return roleHierarchy[Math.max(currentIndex - 1, 0)];
+  };
+
+  const handleRoleChange = async (id: string, action: 'promote' | 'demote') => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    const newRole = updateRole(user.role, action);
+    await axios.post("/api/hradmin/update", { id, role: newRole });
     fetchUsers();
   };
 
@@ -86,9 +100,31 @@ export default function HRAdminPage() {
               <TableCell>{u.team}</TableCell>
               <TableCell>{u.role}</TableCell>
               <TableCell>
-                <Button variant="contained" color="success" onClick={() => handleUpdateRole(u.id, "SUPERVISOR")}>Promote</Button>
-                <Button variant="contained" color="warning" onClick={() => handleUpdateRole(u.id, "EMPLOYEE")} style={{ marginLeft: 8 }}>Demote</Button>
-                <Button variant="contained" color="error" onClick={() => handleDelete(u.id)} style={{ marginLeft: 8 }}>Delete</Button>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  onClick={() => handleRoleChange(u.id, "promote")}
+                  disabled={u.role === 'HR'}
+                >
+                  Promote
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="warning" 
+                  onClick={() => handleRoleChange(u.id, "demote")} 
+                  style={{ marginLeft: 8 }}
+                  disabled={u.role === 'EMPLOYEE'}
+                >
+                  Demote
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="error" 
+                  onClick={() => handleDelete(u.id)} 
+                  style={{ marginLeft: 8 }}
+                >
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}
