@@ -1,79 +1,91 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Box,
-  Paper,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow, 
-  useTheme
-  
+Box,
+Paper,
+Typography,
+Table,
+TableBody,
+TableCell,
+TableContainer,
+TableHead,
+TableRow,
+useTheme,
 } from "@mui/material";
 
- export default function VacationPage() {
-  const theme = useTheme();
+type VacationStats = {
+available: number;
+requested: number;
+approved: number;
+taken: number;
+};
 
-  const [vacationData, setVacationData] = useState([]);
+export default function VacationPage() {
+const theme = useTheme();
+const [data, setData] = useState<VacationStats>({
+available: 0,
+requested: 0,
+approved: 0,
+taken: 0,
+});
 
-  useEffect(() => {
-    // Fetch vacation data from API
-    axios
-      .get("/api/vacation")
-      .then((response) => {
-        setVacationData(response.data);  // Set the fetched data
-      })
-      .catch((error) => {
-        console.error("Error fetching vacation data:", error);
-      });
-  }, []);
+useEffect(() => {
+axios
+.get<VacationStats>("/api/vacation")
+.then((res) => setData(res.data))
+.catch((err) => console.error("Error fetching vacation data:", err));
+}, []);
 
-
-  
-    return (
-        <Box sx={{ p: 4, display: "flex", justifyContent: "center" }}>
-          <Paper elevation={3} sx={{ p: 4, width: 400, backgroundColor: theme.palette.background.paper, }}>
-            <Typography variant="h4" gutterBottom>
-              Vacation 2025
-            </Typography>
+return (
+<Box sx={{ p: 4, display: "flex", justifyContent: "center" }}>
+<Paper
+elevation={3}
+sx={{
+p: 4,
+width: 400,
+backgroundColor: theme.palette.background.paper,
+}}
+>
+<Typography variant="h4" gutterBottom>
+Vacation 2025
+</Typography>
+            
     
-            <TableContainer component={Paper}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell><strong>Available</strong></TableCell>
-                    <TableCell align="right"></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Requested</TableCell>
-                    <TableCell align="right"></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Approved</TableCell>
-                    <TableCell align="right"></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Taken</TableCell>
-                    <TableCell align="right"></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell><strong>Quotas</strong></TableCell>
-                    <TableCell />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Vacation</TableCell>
-                    <TableCell align="right"></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Box>
-      );
-}
+<TableContainer component={Paper}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>
+              <strong>Category</strong>
+            </TableCell>
+            <TableCell align="right">
+              <strong>Days</strong>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell>Available</TableCell>
+            <TableCell align="right">{data.available}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Requested</TableCell>
+            <TableCell align="right">{data.requested}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Approved</TableCell>
+            <TableCell align="right">{data.approved}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Taken</TableCell>
+            <TableCell align="right">{data.taken}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Paper>
+  </Box>
+  );
+} 

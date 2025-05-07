@@ -1,26 +1,46 @@
 // app/api/vacation/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import VacationPage from "@/app/vacations/page";
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { auth } from "@/lib/auth";
 
-
-export async function POST(req: NextRequest) {
-  const data = await req.json();
-
-  const vacation = await prisma.vacationRequest.create({
-    data,
-  });
-
-  return NextResponse.json(vacation);
-}
-//GET 
+const prisma = new PrismaClient();
 
 export async function GET() {
-  try {
-    const vacations = await prisma.vacationRequest.findMany();
-    return NextResponse.json(vacations);
-  } catch (error) {
-    console.error("error fetching vacations:" , error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
-  }
+ const session = await auth();
+ if (!session) {
+   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+ }
+
+const userId = session.user.id;
+
+try {
+   const user = await prisma.user.findUnique({
+     where: { id: userId },
+     select: { vacationDays: true },
+   });
+
+const allRequests = await prisma.vacationRequest.findMany({
+     where: { userId },
+     select: { startDate: true, endDate: true, status: true },
+   });
+
+let requested = 0, approved = 0, taken = 0;
+   allRequests.forEach(r => {
+     const days = Math.floor((r.endDate.getTime() - r.startDate.getTime())/(10006060*24)) + 1;
+     if (r.status === "PENDING") requested += days;
+     else if (r.status === "APPROVED") {
+       approved += days;
+       taken += days;
+     }
+   });
+
+return NextResponse.json({
+     available: user?.vacationDays ?? 0,
+     requested,
+     approved,
+     taken,
+   });
+ } catch {
+   return NextResponse.json({ error: "Server error" }, { status: 500 });
+ }
 }
