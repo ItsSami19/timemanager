@@ -129,22 +129,36 @@ export default function HRAdminPage() {
         setError("Please select a supervisor");
         return;
       }
-      await axios.post("/api/hradmin/create", {
-        email: users.find(u => u.id === newTeamSupervisor)?.email || `${newTeamSupervisor}@placeholder.com`,
-        name: users.find(u => u.id === newTeamSupervisor)?.name || "Supervisor",
+
+      // Create the team
+      const teamResponse = await axios.post("/api/hradmin/create", {
         team: newTeamName,
-        role: "SUPERVISOR",
-        password: "changeme123", // Placeholder, should be handled securely in production
         isNewTeam: true,
         supervisorId: newTeamSupervisor,
         employeeIds: newTeamMembers
       });
+
+      // Update the teams list
+      await fetchTeams();
+      
+      // If there are team members, update their team assignments
+      if (newTeamMembers.length > 0) {
+        const teamId = teamResponse.data.id;
+        if (teamId) {
+          await Promise.all(newTeamMembers.map(memberId =>
+            axios.post("/api/hradmin/update", {
+              id: memberId,
+              teamId: teamId
+            })
+          ));
+        }
+      }
+
       setNewTeamName("");
       setNewTeamSupervisor("");
       setNewTeamMembers([]);
       setOpenTeamDialog(false);
       await fetchUsers();
-      await fetchTeams();
     } catch (error: any) {
       setError(error.response?.data?.error || "Failed to create team");
     } finally {
@@ -190,6 +204,8 @@ export default function HRAdminPage() {
           team: updatedUser.team
         } : user
       ));
+      // Refresh teams to ensure all data is up to date
+      await fetchTeams();
     } catch (error: any) {
       setError(error.response?.data?.error || "Failed to update team");
     } finally {
@@ -262,12 +278,16 @@ export default function HRAdminPage() {
               />
             )}
             renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  label={option.name}
-                  {...getTagProps({ index })}
-                />
-              ))
+              value.map((option, index) => {
+                const { key, ...chipProps } = getTagProps({ index });
+                return (
+                  <Chip
+                    key={key}
+                    label={option.name}
+                    {...chipProps}
+                  />
+                );
+              })
             }
           />
         </DialogContent>
@@ -360,12 +380,16 @@ export default function HRAdminPage() {
                   />
                 )}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      label={option.name}
-                      {...getTagProps({ index })}
-                    />
-                  ))
+                  value.map((option, index) => {
+                    const { key, ...chipProps } = getTagProps({ index });
+                    return (
+                      <Chip
+                        key={key}
+                        label={option.name}
+                        {...chipProps}
+                      />
+                    );
+                  })
                 }
               />
             </>

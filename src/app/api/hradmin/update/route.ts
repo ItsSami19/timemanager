@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     // If changing team, validate the change
-    if (teamId) {
+    if (teamId !== undefined) {
       const user = await prisma.user.findUnique({
         where: { id },
         select: { role: true }
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       }
 
       // If user is a supervisor, check if they're the supervisor of the target team
-      if (user.role === 'SUPERVISOR') {
+      if (user.role === 'SUPERVISOR' && teamId) {
         const targetTeam = await prisma.team.findUnique({
           where: { id: teamId },
           select: { supervisorId: true }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       where: { id },
       data: {
         ...(role && { role }),
-        ...(teamId && { teamId }),
+        ...(teamId !== undefined && { teamId }),
       },
       include: {
         team: {

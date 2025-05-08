@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { email, name, team, role, password, isNewTeam, supervisorId, employeeIds } = body;
 
-  if (!email || !name || !role || !password) {
+  if (!isNewTeam && (!email || !name || !role || !password)) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -16,6 +16,15 @@ export async function POST(req: Request) {
     if (isNewTeam && team) {
       if (!supervisorId) {
         return NextResponse.json({ error: "Supervisor ID is required for new team" }, { status: 400 });
+      }
+
+      // Check if team with same name already exists
+      const existingTeam = await prisma.team.findUnique({
+        where: { name: team }
+      });
+
+      if (existingTeam) {
+        return NextResponse.json({ error: "A team with this name already exists" }, { status: 400 });
       }
 
       // Create the team first
@@ -40,6 +49,9 @@ export async function POST(req: Request) {
           },
         });
       }
+
+      // Return the created team instead of creating a new user
+      return NextResponse.json(newTeam);
     } else if (team) {
       // If using existing team
       const existingTeam = await prisma.team.findUnique({
